@@ -1,4 +1,53 @@
 import streamlit as st
+#水印1
+st.markdown(
+    """
+    <style>
+    .watermark {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        display: flex;
+        flex-wrap: wrap;
+        opacity: 0.01;
+        transform: rotate(-30deg);
+    }
+
+    .watermark span {
+        font-size: 60px;
+        margin: 60px;
+        color: black;
+        user-select: none;
+    }
+    </style>
+
+    <div class="watermark">
+        """ + ("<span>ZZF GPA</span>" * 20) + """
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+#水印2
+st.markdown(
+    """
+    <style>
+    .footer {
+        position: fixed;
+        bottom: 10px;
+        right: 20px;
+        font-size: 12px;
+        color: rgba(0,0,0,0.5);
+    }
+    </style>
+    <div class="footer">© ZZF | GPA Tool</div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 st.set_page_config(page_title="绩点计算器", page_icon="📘", layout="centered")
 st.title("📘 绩点计算器")
