@@ -32,18 +32,23 @@ st.markdown(
     unsafe_allow_html=True
 )
 #水印2
+import streamlit as st
+
 st.markdown(
     """
     <style>
-    .footer {
+    .watermark {
         position: fixed;
-        bottom: 10px;
-        right: 20px;
-        font-size: 12px;
-        color: rgba(0,0,0,0.5);
+        bottom: 20px;   /* 👈 距离底部 */
+        left: 20px;     /* 👈 距离左边 */
+        font-size: 16px;
+        color: rgba(0,0,0,0.4);
+        z-index: 9999;
+        pointer-events: none;
     }
     </style>
-    <div class="footer">© ZZF | GPA Tool</div>
+
+    <div class="watermark">© ZZF | GPA Tool</div>
     """,
     unsafe_allow_html=True
 )
