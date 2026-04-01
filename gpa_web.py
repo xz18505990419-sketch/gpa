@@ -1,27 +1,25 @@
 import streamlit as st
 
 st.set_page_config(page_title="绩点计算器", page_icon="📘", layout="centered")
-
 st.title("📘 绩点计算器")
 
-st.write("输入当前总学分、当前总绩点，以及后续课程的学分和绩点，计算新的总学分和总绩点。")
-
-# 初始化课程列表
 if "courses" not in st.session_state:
     st.session_state.courses = []
 
 
 def parse_number(value):
-    """兼容逗号和点号小数"""
-    return float(str(value).replace(",", "."))
+    return float(str(value).replace(",", ".").strip())
 
 
-# 当前信息
 st.subheader("当前信息")
 current_credit = st.text_input("当前总学分", value="0")
 current_gpa = st.text_input("当前总绩点", value="0")
 
+# =========================
+# 1. 添加新课程并计算最终总绩点
+# =========================
 st.subheader("添加新课程")
+course_name = st.text_input("课程名称", key="course_name")
 new_credit = st.text_input("新课程学分", key="new_credit")
 new_gpa = st.text_input("新课程绩点", key="new_gpa")
 
@@ -38,8 +36,12 @@ with col1:
             elif not (0 <= gpa <= 5):
                 st.error("绩点必须在 0 到 5 之间")
             else:
-                st.session_state.courses.append({"credit": credit, "gpa": gpa})
-                st.success(f"已添加课程：学分 {credit}，绩点 {gpa}")
+                st.session_state.courses.append({
+                    "name": course_name.strip() if course_name.strip() else f"课程{len(st.session_state.courses)+1}",
+                    "credit": credit,
+                    "gpa": gpa
+                })
+                st.success("课程已添加")
         except ValueError:
             st.error("请输入有效数字")
 
@@ -48,16 +50,28 @@ with col2:
         st.session_state.courses = []
         st.success("已清空所有新课程")
 
-# 显示已添加课程
 st.subheader("已添加课程")
+
 if st.session_state.courses:
-    for i, course in enumerate(st.session_state.courses, start=1):
-        st.write(f"课程{i}：学分 {course['credit']}，绩点 {course['gpa']}")
+    delete_index = None
+
+    for i, course in enumerate(st.session_state.courses):
+        col1, col2 = st.columns([4, 1])
+
+        with col1:
+            st.write(f"{course['name']}：学分 {course['credit']}，绩点 {course['gpa']}")
+
+        with col2:
+            if st.button("删除", key=f"delete_{i}"):
+                delete_index = i
+
+    if delete_index is not None:
+        st.session_state.courses.pop(delete_index)
+        st.rerun()
 else:
     st.info("暂无已添加课程")
 
-# 计算结果
-st.subheader("计算结果")
+st.subheader("计算最终总绩点")
 if st.button("计算总绩点"):
     try:
         current_credit_num = parse_number(current_credit)
@@ -82,3 +96,46 @@ if st.button("计算总绩点"):
 
     except ValueError:
         st.error("请正确填写当前总学分和当前总绩点")
+
+
+# =========================
+# 2. 根据目标总绩点反推所需新课程平均绩点
+# =========================
+st.subheader("反推所需新课程平均绩点")
+
+target_gpa = st.text_input("目标总绩点", key="target_gpa")
+future_credit = st.text_input("未来新课程总学分", key="future_credit")
+
+if st.button("计算所需平均绩点"):
+    try:
+        current_credit_num = parse_number(current_credit)
+        current_gpa_num = parse_number(current_gpa)
+        target_gpa_num = parse_number(target_gpa)
+        future_credit_num = parse_number(future_credit)
+
+        if current_credit_num < 0:
+            st.error("当前总学分不能小于 0")
+        elif not (0 <= current_gpa_num <= 5):
+            st.error("当前总绩点必须在 0 到 5 之间")
+        elif not (0 <= target_gpa_num <= 5):
+            st.error("目标总绩点必须在 0 到 5 之间")
+        elif future_credit_num <= 0:
+            st.error("未来新课程总学分必须大于 0")
+        else:
+            needed_gpa = (
+                target_gpa_num * (current_credit_num + future_credit_num)
+                - current_credit_num * current_gpa_num
+            ) / future_credit_num
+
+            st.info(f"若想达到目标总绩点 {target_gpa_num:.4f}：")
+            st.info(f"未来 {future_credit_num:.2f} 学分的平均绩点需要达到：{needed_gpa:.4f}")
+
+            if needed_gpa > 5:
+                st.warning("这个目标超过 5.0，按当前规则无法达到。")
+            elif needed_gpa < 0:
+                st.warning("所需平均绩点小于 0，说明你已经超过这个目标了。")
+            else:
+                st.success("这个目标在理论上可实现。")
+
+    except ValueError:
+        st.error("请正确填写所有数字")
