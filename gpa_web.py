@@ -32,27 +32,26 @@ st.markdown(
     unsafe_allow_html=True
 )
 #水印2
-import streamlit as st
-
 st.markdown(
     """
-    <style>
-    .watermark {
+    <div style="
         position: fixed;
-        bottom: 20px;   /* 👈 距离底部 */
-        left: 20px;     /* 👈 距离左边 */
-        font-size: 16px;
-        color: rgba(0,0,0,0.4);
-        z-index: 9999;
+        bottom: 36px;
+        left: 56px;
+        font-size: 15px;
+        color: rgba(0,0,0,0.6);
+        background: rgba(255,255,255,0.55);
+        padding: 4px 8px;
+        border-radius: 6px;
+        z-index: 10000;
         pointer-events: none;
-    }
-    </style>
-
-    <div class="watermark">© ZZF | GPA Tool</div>
+        user-select: none;
+    ">
+        © 2026 ZZF · GPA Tool
+    </div>
     """,
     unsafe_allow_html=True
 )
-
 
 st.set_page_config(page_title="绩点计算器", page_icon="📘", layout="centered")
 st.title("📘 绩点计算器")
